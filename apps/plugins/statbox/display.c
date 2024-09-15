@@ -18,6 +18,14 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
+/********************************************************************************
+ * display.c
+ *
+ * This file contains the implementation of the display functions for the STATbox
+ * plugin. It includes functions to show a splash screen, display collected stats,
+ * and handle battery information.
+ *
+ ********************************************************************************/
 #include "plugin.h"
 #include "display.h"
 #include "utils.h"
@@ -29,15 +37,12 @@ void show_splash_screen(void)
     rb->lcd_update();
 }
 
-void display_stats(struct dir_stats_custom *custom_stats)
+void draw_header(void)
 {
     int font_id = FONT_SYSFIXED; // Use a larger built-in font
     rb->lcd_setfont(font_id);
 
     int line_height = rb->font_get(font_id)->height; // Use the loaded font's height
-
-    /* Clear display and show the collected directory stats */
-    rb->lcd_clear_display();
 
     /* Draw a visually appealing "STATbox" header */
     int header_x = 10;
@@ -59,7 +64,7 @@ void display_stats(struct dir_stats_custom *custom_stats)
 
     /* Draw "STAT" part */
     rb->lcd_set_background(LCD_RGBPACK(255, 221, 79)); /* Set text background color */
-    rb->lcd_set_foreground(LCD_RGBPACK(0, 0, 0));      /* Set text color to black */
+    rb->lcd_set_foreground(LCD_RGBPACK(0, 0, 0)); /* Set text color to black */
     rb->lcd_putsxy(stat_x, header_y + (header_height - line_height) / 2, "STAT");
 
     /* Draw "box" part */
@@ -69,60 +74,94 @@ void display_stats(struct dir_stats_custom *custom_stats)
     /* Draw a line below the header box */
     rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255)); /* Set line color to white */
     rb->lcd_drawline(header_x, header_y + header_height + 5, header_x + header_width, header_y + header_height + 5);
+}
+
+void draw_stat_line(const char *label, const char *value, int *text_y, int line_height, int text_x, int value_x)
+{
+    int centered_y = *text_y + (line_height / 2) - (rb->font_get(FONT_SYSFIXED)->height / 2);
+    rb->lcd_putsxy(text_x, centered_y, label);
+    rb->lcd_putsxy(value_x - rb->lcd_getstringsize(value, NULL, NULL), centered_y, value);
+    *text_y += line_height + 10;
+}
+
+void draw_separator_lines(int rect_x, int rect_y, int rect_width, int line_height, int num_lines)
+{
+    int padding_left = 15; // Padding from the left side
+    for (int i = 1; i <= num_lines; i++) {
+        int line_y = rect_y + i * (line_height + 10) - 5; // Adjusted to place lines between text
+        rb->lcd_set_foreground(LCD_RGBPACK(141, 140, 142)); /* Set line color to rgb(141, 140, 142) */
+        rb->lcd_drawline(rect_x + padding_left, line_y, rect_x + rect_width, line_y);
+    }
+}
+
+void display_stats(struct dir_stats_custom *custom_stats)
+{
+    int font_id = FONT_SYSFIXED; // Use a larger built-in font
+    rb->lcd_setfont(font_id);
+
+    int line_height = rb->font_get(font_id)->height; // Use the loaded font's height
+
+    /* Clear display and show the collected directory stats */
+    rb->lcd_clear_display();
+
+    draw_header();
 
     /* Draw the main rectangle for the stats */
     int rect_x = 10;
     int rect_y = 60;
     int rect_width = LCD_WIDTH - 20;
-    int rect_height = 7 * (line_height + 10) + 6 * 5; // 7 lines of text with 6 separators
+    int rect_height = 10 * (line_height + 10) + 9 * 5; // 10 lines of text with 9 separators
 
     rb->lcd_set_foreground(LCD_RGBPACK(28, 28, 30)); /* Set background color to rgb(28, 28, 30) */
     rb->lcd_fillrect(rect_x, rect_y, rect_width, rect_height);
 
     /* Display stats with black background and white text */
-    rb->lcd_set_background(LCD_RGBPACK(28, 28, 30));    /* Set background color to rgb(28, 28, 30) */
+    rb->lcd_set_background(LCD_RGBPACK(28, 28, 30)); /* Set background color to rgb(28, 28, 30) */
     rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255)); /* Set text color to white */
 
-    int icon_spacing = 20;          // Space reserved for the icon
+    int icon_spacing = 20; // Space reserved for the icon
     int text_x = 15 + icon_spacing; // Adjust text position to leave space for the icon
-    int text_y = rect_y + 5;
+    int text_y = rect_y + 20; // Adjusted to add padding above the first line
     int value_x = rect_x + rect_width - 10; // Right-align values with a 10-pixel padding
 
-    rb->lcd_putsxy(text_x, text_y, "Audio");
-    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.audio_space_used / (1024.0 * 1024.0), custom_stats->stats.audio_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.audio_space_used / (1024.0 * 1024.0), custom_stats->stats.audio_file_count);
-    text_y += line_height + 10;
+    char buffer[32];
 
-    rb->lcd_putsxy(text_x, text_y, "Images");
-    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.img_space_used / (1024.0 * 1024.0), custom_stats->stats.img_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.img_space_used / (1024.0 * 1024.0), custom_stats->stats.img_file_count);
-    text_y += line_height + 10;
+    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.audio_space_used / (1024.0 * 1024.0), custom_stats->stats.audio_file_count);
+    draw_stat_line("Audio", buffer, &text_y, line_height, text_x, value_x);
 
-    rb->lcd_putsxy(text_x, text_y, "Videos");
-    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.vid_space_used / (1024.0 * 1024.0), custom_stats->stats.vid_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.vid_space_used / (1024.0 * 1024.0), custom_stats->stats.vid_file_count);
-    text_y += line_height + 10;
+    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.img_space_used / (1024.0 * 1024.0), custom_stats->stats.img_file_count);
+    draw_stat_line("Images", buffer, &text_y, line_height, text_x, value_x);
 
-    rb->lcd_putsxy(text_x, text_y, "Playlists");
-    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.m3u_space_used / (1024.0 * 1024.0), custom_stats->stats.m3u_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.m3u_space_used / (1024.0 * 1024.0), custom_stats->stats.m3u_file_count);
-    text_y += line_height + 10;
+    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.vid_space_used / (1024.0 * 1024.0), custom_stats->stats.vid_file_count);
+    draw_stat_line("Videos", buffer, &text_y, line_height, text_x, value_x);
 
-    rb->lcd_putsxy(text_x, text_y, "Directories");
-    rb->lcd_putsxyf(value_x - lcd_getstringsizef("(%d)", custom_stats->stats.dir_count), text_y, "(%d)", custom_stats->stats.dir_count);
-    text_y += line_height + 10;
+    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.m3u_space_used / (1024.0 * 1024.0), custom_stats->stats.m3u_file_count);
+    draw_stat_line("Playlists", buffer, &text_y, line_height, text_x, value_x);
 
-    rb->lcd_putsxy(text_x, text_y, "Files");
-    rb->lcd_putsxyf(value_x - lcd_getstringsizef("(%d)", custom_stats->stats.file_count), text_y, "(%d)", custom_stats->stats.file_count);
-    text_y += line_height + 10;
+    // Get the battery level
+    int battery_level = rb->battery_level();
 
-    rb->lcd_putsxy(text_x, text_y, "Total Space Used");
-    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)), text_y, "%.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0));
+    // Get the estimated battery time remaining in minutes
+    int battery_time = rb->battery_time();
 
-    /* Draw separator lines between each stat */
-    int padding_left = 15; // Padding from the left side
-    for (int i = 1; i < 7; i++)
-    {
-        int line_y = rect_y + i * (line_height + 10);
-        rb->lcd_set_foreground(LCD_RGBPACK(141, 140, 142)); /* Set line color to rgb(141, 140, 142) */
-        rb->lcd_drawline(rect_x + padding_left, line_y, rect_x + rect_width, line_y);
-    }
+    // Convert battery time to hours and minutes
+    int battery_hours = battery_time / 60;
+    int battery_minutes = battery_time % 60;
+
+    // Display the battery information on one line
+    snprintf(buffer, sizeof(buffer), "%d hr %d min (%d%%)", battery_hours, battery_minutes, battery_level);
+    draw_stat_line("Battery", buffer, &text_y, line_height, text_x, value_x);
+
+    snprintf(buffer, sizeof(buffer), "(%d)", custom_stats->stats.dir_count);
+    draw_stat_line("Directories", buffer, &text_y, line_height, text_x, value_x);
+
+    snprintf(buffer, sizeof(buffer), "(%d)", custom_stats->stats.file_count);
+    draw_stat_line("Files", buffer, &text_y, line_height, text_x, value_x);
+
+    snprintf(buffer, sizeof(buffer), "%.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0));
+    draw_stat_line("Total Space Used", buffer, &text_y, line_height, text_x, value_x);
+
+    draw_separator_lines(rect_x, rect_y, rect_width, line_height, 9); // Adjusted to draw 9 separator lines
 
     /* Update display */
     rb->lcd_update();
