@@ -70,20 +70,41 @@ void display_stats(struct dir_stats_custom *custom_stats)
     rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255)); /* Set line color to white */
     rb->lcd_drawline(header_x, header_y + header_height + 5, header_x + header_width, header_y + header_height + 5);
 
-    /* Display stats with black background and white text */
-    int vertical_offset = 60; // Increased spacing
-    int spacing = 25;
+    /* Draw the main rectangle for the stats */
+    int rect_x = 10;
+    int rect_y = 60;
+    int rect_width = LCD_WIDTH - 20;
+    int rect_height = 7 * (line_height + 10) + 6 * 5; // 7 lines of text with 6 separators
 
-    rb->lcd_set_background(LCD_RGBPACK(0, 0, 0)); /* Set background color to black */
+    rb->lcd_set_foreground(LCD_RGBPACK(28, 28, 30)); /* Set background color to rgb(28, 28, 30) */
+    rb->lcd_fillrect(rect_x, rect_y, rect_width, rect_height);
+
+    /* Display stats with black background and white text */
+    rb->lcd_set_background(LCD_RGBPACK(28, 28, 30)); /* Set background color to rgb(28, 28, 30) */
     rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255)); /* Set text color to white */
 
-    rb->lcd_putsxyf(10, vertical_offset, "Files: %d", custom_stats->stats.file_count);
-    rb->lcd_putsxyf(10, vertical_offset + spacing, "Audio: %d (%.2f MB)", custom_stats->stats.audio_file_count, custom_stats->stats.audio_space_used / (1024.0 * 1024.0));
-    rb->lcd_putsxyf(10, vertical_offset + 2 * spacing, "Images: %d (%.2f MB)", custom_stats->stats.img_file_count, custom_stats->stats.img_space_used / (1024.0 * 1024.0));
-    rb->lcd_putsxyf(10, vertical_offset + 3 * spacing, "Videos: %d (%.2f MB)", custom_stats->stats.vid_file_count, custom_stats->stats.vid_space_used / (1024.0 * 1024.0));
-    rb->lcd_putsxyf(10, vertical_offset + 4 * spacing, "Playlists: %d (%.2f MB)", custom_stats->stats.m3u_file_count, custom_stats->stats.m3u_space_used / (1024.0 * 1024.0));
-    rb->lcd_putsxyf(10, vertical_offset + 5 * spacing, "Directories: %d", custom_stats->stats.dir_count);
-    rb->lcd_putsxyf(10, vertical_offset + 6 * spacing, "Total Space Used: %.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)); // Display total space used in MB
+    int text_y = rect_y + 5;
+    rb->lcd_putsxyf(15, text_y, "Files: %d", custom_stats->stats.file_count);
+    text_y += line_height + 10;
+    rb->lcd_putsxyf(15, text_y, "Audio: %d (%.2f MB)", custom_stats->stats.audio_file_count, custom_stats->stats.audio_space_used / (1024.0 * 1024.0));
+    text_y += line_height + 10;
+    rb->lcd_putsxyf(15, text_y, "Images: %d (%.2f MB)", custom_stats->stats.img_file_count, custom_stats->stats.img_space_used / (1024.0 * 1024.0));
+    text_y += line_height + 10;
+    rb->lcd_putsxyf(15, text_y, "Videos: %d (%.2f MB)", custom_stats->stats.vid_file_count, custom_stats->stats.vid_space_used / (1024.0 * 1024.0));
+    text_y += line_height + 10;
+    rb->lcd_putsxyf(15, text_y, "Playlists: %d (%.2f MB)", custom_stats->stats.m3u_file_count, custom_stats->stats.m3u_space_used / (1024.0 * 1024.0));
+    text_y += line_height + 10;
+    rb->lcd_putsxyf(15, text_y, "Directories: %d", custom_stats->stats.dir_count);
+    text_y += line_height + 10;
+    rb->lcd_putsxyf(15, text_y, "Total Space Used: %.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)); // Display total space used in MB
+
+    /* Draw separator lines between each stat */
+    int padding_left = 15; // Padding from the left side
+    for (int i = 1; i < 7; i++) {
+        int line_y = rect_y + i * (line_height + 10);
+        rb->lcd_set_foreground(LCD_RGBPACK(141, 140, 142)); /* Set line color to rgb(141, 140, 142) */
+        rb->lcd_drawline(rect_x + padding_left, line_y, rect_x + rect_width, line_y);
+    }
 
     /* Update display */
     rb->lcd_update();
