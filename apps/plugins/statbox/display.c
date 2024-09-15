@@ -83,7 +83,7 @@ void display_stats(struct dir_stats_custom *custom_stats)
     rb->lcd_putsxyf(10, vertical_offset + 3 * spacing, "Videos: %d", custom_stats->stats.vid_file_count);
     rb->lcd_putsxyf(10, vertical_offset + 4 * spacing, "Playlists: %d", custom_stats->stats.m3u_file_count);
     rb->lcd_putsxyf(10, vertical_offset + 5 * spacing, "Directories: %d", custom_stats->stats.dir_count);
-    rb->lcd_putsxyf(10, vertical_offset + 6 * spacing, "Space Used: %lu bytes", custom_stats->stats.total_space_used); // Display total space used
+    rb->lcd_putsxyf(10, vertical_offset + 6 * spacing, "Space Used: %.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)); // Display total space used in MB
 
     /* Update display */
     rb->lcd_update();
