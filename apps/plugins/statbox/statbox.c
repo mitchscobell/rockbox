@@ -36,6 +36,7 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
 
     /* Collect stats without displaying intermediate results */
+    show_splash_screen(); // Show splash screen before collecting stats
     success = custom_collect_dir_stats(&custom_stats, NULL);
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ

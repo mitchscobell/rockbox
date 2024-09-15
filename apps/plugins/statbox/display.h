@@ -24,6 +24,7 @@
 
 #include "statbox.h"
 
+void show_splash_screen(void);
 void display_stats(struct dir_stats_custom *custom_stats);
 
 #endif /* DISPLAY_H */

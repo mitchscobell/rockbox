@@ -21,6 +21,13 @@
 
 #include "display.h"
 
+void show_splash_screen(void)
+{
+    rb->lcd_clear_display();
+    rb->lcd_puts(0, 0, "Collecting stats...");
+    rb->lcd_update();
+}
+
 void display_stats(struct dir_stats_custom *custom_stats)
 {
     int font_id = FONT_SYSFIXED; // Use a larger built-in font
