@@ -29,8 +29,6 @@ bool collect_dir_stats(struct dir_stats *stats, bool (*id3_cb)(const char*))
 {
     bool result = true;
     int files_in_dir = 0; // Changed from unsigned int to int
-    static unsigned int id3_count;
-    static unsigned long last_get_action;
     struct dirent* entry;
     int dirlen = rb->strlen(stats->dirname);
     DIR* dir =  rb->opendir(stats->dirname);
@@ -66,6 +64,7 @@ bool collect_dir_stats(struct dir_stats *stats, bool (*id3_cb)(const char*))
             stats->file_count++; /* new file */
             files_in_dir++;
             stats->byte_count += info.size;
+            stats->total_space_used += info.size; // Add file size to total space used
 
             int attr = rb->filetype_get_attr(entry->d_name);
             if (attr == FILE_ATTR_AUDIO)
@@ -96,35 +95,13 @@ bool collect_dir_stats(struct dir_stats *stats, bool (*id3_cb)(const char*))
                 }
             }
         }
-        else if (rb->filetype_get_attr(entry->d_name) == FILE_ATTR_AUDIO)
-        {
-            rb->splash_progress(id3_count++, stats->audio_file_count,
-                                "%s (%s)",
-                                rb->str(LANG_WAIT), rb->str(LANG_OFF_ABORT));
-            rb->snprintf(stats->dirname + dirlen, sizeof(stats->dirname) - dirlen,
-                         "/%s", entry->d_name); /* append name to current directory */
-            id3_cb(stats->dirname); /* allow metadata to be collected */
-        }
-
-        if (TIME_AFTER(*(rb->current_tick), last_get_action + HZ/8))
-        {
-            if(ACTION_STD_CANCEL == rb->get_action(CONTEXT_STD,TIMEOUT_NOBLOCK))
-            {
-                stats->canceled = true;
-                result = false;
-            }
-            last_get_action = *(rb->current_tick);
-        }
-        rb->yield();
     }
+
     rb->closedir(dir);
-    if (stats->max_files_in_dir < files_in_dir)
-        stats->max_files_in_dir = files_in_dir;
     return result;
 }
 
 bool custom_collect_dir_stats(struct dir_stats_custom *custom_stats, bool (*id3_cb)(const char*))
 {
-    custom_stats->suppress_display = true; // Disable intermediate display updates
     return collect_dir_stats(&custom_stats->stats, id3_cb);
 }

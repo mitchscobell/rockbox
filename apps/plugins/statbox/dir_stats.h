@@ -24,6 +24,24 @@
 
 #include "statbox.h"
 
+struct dir_stats {
+    char dirname[MAX_PATH];
+    unsigned int dir_count;
+    unsigned int file_count;
+    unsigned int audio_file_count;
+    unsigned int img_file_count;
+    unsigned int vid_file_count;
+    unsigned int m3u_file_count;
+    unsigned long byte_count;
+    unsigned long total_space_used; // New field for total space used
+    bool count_all;
+};
+
+struct dir_stats_custom {
+    struct dir_stats stats;
+    // Add any custom fields here if needed
+};
+
 bool collect_dir_stats(struct dir_stats *stats, bool (*id3_cb)(const char*));
 bool custom_collect_dir_stats(struct dir_stats_custom *custom_stats, bool (*id3_cb)(const char*));
 
