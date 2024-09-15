@@ -17,7 +17,8 @@ xworld
 sdl
 #endif
 
-puzzles
+/* puzzles isn't building for me commenting it out */
+//puzzles
 #endif
 
 #if    (CONFIG_KEYPAD != SANSA_M200_PAD) /* not enough buttons */ \
@@ -41,6 +42,7 @@ fft
 chessbox
 fractals
 imageviewer
+statbox
 sudoku
 reversi
 goban
