@@ -33,7 +33,11 @@ struct dir_stats {
     unsigned int vid_file_count;
     unsigned int m3u_file_count;
     unsigned long byte_count;
-    unsigned long total_space_used; // New field for total space used
+    unsigned long total_space_used; 
+    unsigned long audio_space_used; 
+    unsigned long img_space_used;   
+    unsigned long vid_space_used;   
+    unsigned long m3u_space_used;
     bool count_all;
 };
 

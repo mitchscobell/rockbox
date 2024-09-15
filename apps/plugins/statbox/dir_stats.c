@@ -68,9 +68,15 @@ bool collect_dir_stats(struct dir_stats *stats, bool (*id3_cb)(const char*))
 
             int attr = rb->filetype_get_attr(entry->d_name);
             if (attr == FILE_ATTR_AUDIO)
+            {
                 stats->audio_file_count++;
+                stats->audio_space_used += info.size; // Add file size to audio space used
+            }
             else if (attr == FILE_ATTR_M3U)
+            {
                 stats->m3u_file_count++;
+                stats->m3u_space_used += info.size; // Add file size to playlist space used
+            }
             /* image or video file attributes have to be compared manually */
             else if (stats->count_all &&
                      (ptr = rb->strrchr(entry->d_name,'.')))
@@ -82,6 +88,7 @@ bool collect_dir_stats(struct dir_stats *stats, bool (*id3_cb)(const char*))
                     if(!rb->strcasecmp(ptr, image_exts[i]))
                     {
                         stats->img_file_count++;
+                        stats->img_space_used += info.size; // Add file size to image space used
                         break;
                     }
                 }
@@ -89,6 +96,7 @@ bool collect_dir_stats(struct dir_stats *stats, bool (*id3_cb)(const char*))
                     for(i = 0; i < ARRAYLEN(video_exts); i++) {
                         if(!rb->strcasecmp(ptr, video_exts[i])) {
                             stats->vid_file_count++;
+                            stats->vid_space_used += info.size; // Add file size to video space used
                             break;
                         }
                     }

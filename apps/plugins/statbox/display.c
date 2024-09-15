@@ -78,12 +78,12 @@ void display_stats(struct dir_stats_custom *custom_stats)
     rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255)); /* Set text color to white */
 
     rb->lcd_putsxyf(10, vertical_offset, "Files: %d", custom_stats->stats.file_count);
-    rb->lcd_putsxyf(10, vertical_offset + spacing, "Audio: %d", custom_stats->stats.audio_file_count);
-    rb->lcd_putsxyf(10, vertical_offset + 2 * spacing, "Images: %d", custom_stats->stats.img_file_count);
-    rb->lcd_putsxyf(10, vertical_offset + 3 * spacing, "Videos: %d", custom_stats->stats.vid_file_count);
-    rb->lcd_putsxyf(10, vertical_offset + 4 * spacing, "Playlists: %d", custom_stats->stats.m3u_file_count);
+    rb->lcd_putsxyf(10, vertical_offset + spacing, "Audio: %d (%.2f MB)", custom_stats->stats.audio_file_count, custom_stats->stats.audio_space_used / (1024.0 * 1024.0));
+    rb->lcd_putsxyf(10, vertical_offset + 2 * spacing, "Images: %d (%.2f MB)", custom_stats->stats.img_file_count, custom_stats->stats.img_space_used / (1024.0 * 1024.0));
+    rb->lcd_putsxyf(10, vertical_offset + 3 * spacing, "Videos: %d (%.2f MB)", custom_stats->stats.vid_file_count, custom_stats->stats.vid_space_used / (1024.0 * 1024.0));
+    rb->lcd_putsxyf(10, vertical_offset + 4 * spacing, "Playlists: %d (%.2f MB)", custom_stats->stats.m3u_file_count, custom_stats->stats.m3u_space_used / (1024.0 * 1024.0));
     rb->lcd_putsxyf(10, vertical_offset + 5 * spacing, "Directories: %d", custom_stats->stats.dir_count);
-    rb->lcd_putsxyf(10, vertical_offset + 6 * spacing, "Space Used: %.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)); // Display total space used in MB
+    rb->lcd_putsxyf(10, vertical_offset + 6 * spacing, "Total Space Used: %.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)); // Display total space used in MB
 
     /* Update display */
     rb->lcd_update();
