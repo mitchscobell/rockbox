@@ -1,4 +1,5 @@
 statbox.c
 dir_stats.c
 id3.c
+utils.c
 display.c

@@ -18,9 +18,9 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
-
 #include "plugin.h"
 #include "display.h"
+#include "utils.h"
 
 void show_splash_screen(void)
 {
@@ -59,7 +59,7 @@ void display_stats(struct dir_stats_custom *custom_stats)
 
     /* Draw "STAT" part */
     rb->lcd_set_background(LCD_RGBPACK(255, 221, 79)); /* Set text background color */
-    rb->lcd_set_foreground(LCD_RGBPACK(0, 0, 0)); /* Set text color to black */
+    rb->lcd_set_foreground(LCD_RGBPACK(0, 0, 0));      /* Set text color to black */
     rb->lcd_putsxy(stat_x, header_y + (header_height - line_height) / 2, "STAT");
 
     /* Draw "box" part */
@@ -80,27 +80,45 @@ void display_stats(struct dir_stats_custom *custom_stats)
     rb->lcd_fillrect(rect_x, rect_y, rect_width, rect_height);
 
     /* Display stats with black background and white text */
-    rb->lcd_set_background(LCD_RGBPACK(28, 28, 30)); /* Set background color to rgb(28, 28, 30) */
+    rb->lcd_set_background(LCD_RGBPACK(28, 28, 30));    /* Set background color to rgb(28, 28, 30) */
     rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255)); /* Set text color to white */
 
+    int icon_spacing = 20;          // Space reserved for the icon
+    int text_x = 15 + icon_spacing; // Adjust text position to leave space for the icon
     int text_y = rect_y + 5;
-    rb->lcd_putsxyf(15, text_y, "Files: %d", custom_stats->stats.file_count);
+    int value_x = rect_x + rect_width - 10; // Right-align values with a 10-pixel padding
+
+    rb->lcd_putsxy(text_x, text_y, "Audio");
+    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.audio_space_used / (1024.0 * 1024.0), custom_stats->stats.audio_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.audio_space_used / (1024.0 * 1024.0), custom_stats->stats.audio_file_count);
     text_y += line_height + 10;
-    rb->lcd_putsxyf(15, text_y, "Audio: %d (%.2f MB)", custom_stats->stats.audio_file_count, custom_stats->stats.audio_space_used / (1024.0 * 1024.0));
+
+    rb->lcd_putsxy(text_x, text_y, "Images");
+    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.img_space_used / (1024.0 * 1024.0), custom_stats->stats.img_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.img_space_used / (1024.0 * 1024.0), custom_stats->stats.img_file_count);
     text_y += line_height + 10;
-    rb->lcd_putsxyf(15, text_y, "Images: %d (%.2f MB)", custom_stats->stats.img_file_count, custom_stats->stats.img_space_used / (1024.0 * 1024.0));
+
+    rb->lcd_putsxy(text_x, text_y, "Videos");
+    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.vid_space_used / (1024.0 * 1024.0), custom_stats->stats.vid_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.vid_space_used / (1024.0 * 1024.0), custom_stats->stats.vid_file_count);
     text_y += line_height + 10;
-    rb->lcd_putsxyf(15, text_y, "Videos: %d (%.2f MB)", custom_stats->stats.vid_file_count, custom_stats->stats.vid_space_used / (1024.0 * 1024.0));
+
+    rb->lcd_putsxy(text_x, text_y, "Playlists");
+    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB (%d)", custom_stats->stats.m3u_space_used / (1024.0 * 1024.0), custom_stats->stats.m3u_file_count), text_y, "%.2f MB (%d)", custom_stats->stats.m3u_space_used / (1024.0 * 1024.0), custom_stats->stats.m3u_file_count);
     text_y += line_height + 10;
-    rb->lcd_putsxyf(15, text_y, "Playlists: %d (%.2f MB)", custom_stats->stats.m3u_file_count, custom_stats->stats.m3u_space_used / (1024.0 * 1024.0));
+
+    rb->lcd_putsxy(text_x, text_y, "Directories");
+    rb->lcd_putsxyf(value_x - lcd_getstringsizef("(%d)", custom_stats->stats.dir_count), text_y, "(%d)", custom_stats->stats.dir_count);
     text_y += line_height + 10;
-    rb->lcd_putsxyf(15, text_y, "Directories: %d", custom_stats->stats.dir_count);
+
+    rb->lcd_putsxy(text_x, text_y, "Files");
+    rb->lcd_putsxyf(value_x - lcd_getstringsizef("(%d)", custom_stats->stats.file_count), text_y, "(%d)", custom_stats->stats.file_count);
     text_y += line_height + 10;
-    rb->lcd_putsxyf(15, text_y, "Total Space Used: %.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)); // Display total space used in MB
+
+    rb->lcd_putsxy(text_x, text_y, "Total Space Used");
+    rb->lcd_putsxyf(value_x - lcd_getstringsizef("%.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0)), text_y, "%.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0));
 
     /* Draw separator lines between each stat */
     int padding_left = 15; // Padding from the left side
-    for (int i = 1; i < 7; i++) {
+    for (int i = 1; i < 7; i++)
+    {
         int line_y = rect_y + i * (line_height + 10);
         rb->lcd_set_foreground(LCD_RGBPACK(141, 140, 142)); /* Set line color to rgb(141, 140, 142) */
         rb->lcd_drawline(rect_x + padding_left, line_y, rect_x + rect_width, line_y);
