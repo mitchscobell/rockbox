@@ -18,7 +18,6 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
-
 #include "plugin.h"
 #include "display.h"
 #include "utils.h"
@@ -43,7 +42,7 @@ void draw_header(void)
     int header_width = LCD_WIDTH - 20;
     int header_height = 30;
 
-    rb->lcd_set_foreground(LCD_RGBPACK(255, 221, 79)); /* Set background color to a ROCKbox yellow */
+    rb->lcd_set_foreground(LCD_RGBPACK(255, 221, 79)); /* Set background color to the ROCKbox yellow */
 
     /* Draw the rectangle for the header */
     rb->lcd_fillrect(header_x, header_y, header_width, header_height);
@@ -120,16 +119,16 @@ void display_stats(struct dir_stats_custom *custom_stats)
 
     char buffer[32];
 
-    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.audio_space_used / (1024.0 * 1024.0), custom_stats->stats.audio_file_count);
+    rb->snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.audio_space_used / (1024.0 * 1024.0), custom_stats->stats.audio_file_count);
     draw_stat_line("Audio", buffer, &text_y, line_height, text_x, value_x);
 
-    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.img_space_used / (1024.0 * 1024.0), custom_stats->stats.img_file_count);
+    rb->snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.img_space_used / (1024.0 * 1024.0), custom_stats->stats.img_file_count);
     draw_stat_line("Images", buffer, &text_y, line_height, text_x, value_x);
 
-    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.vid_space_used / (1024.0 * 1024.0), custom_stats->stats.vid_file_count);
+    rb->snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.vid_space_used / (1024.0 * 1024.0), custom_stats->stats.vid_file_count);
     draw_stat_line("Videos", buffer, &text_y, line_height, text_x, value_x);
 
-    snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.m3u_space_used / (1024.0 * 1024.0), custom_stats->stats.m3u_file_count);
+    rb->snprintf(buffer, sizeof(buffer), "%.2f MB (%d)", custom_stats->stats.m3u_space_used / (1024.0 * 1024.0), custom_stats->stats.m3u_file_count);
     draw_stat_line("Playlists", buffer, &text_y, line_height, text_x, value_x);
 
     // Get the battery level
@@ -143,16 +142,16 @@ void display_stats(struct dir_stats_custom *custom_stats)
     int battery_minutes = battery_time % 60;
 
     // Display the battery information on one line
-    snprintf(buffer, sizeof(buffer), "%d hr %d min (%d%%)", battery_hours, battery_minutes, battery_level);
+    rb->snprintf(buffer, sizeof(buffer), "%d hr %d min (%d%%)", battery_hours, battery_minutes, battery_level);
     draw_stat_line("Battery", buffer, &text_y, line_height, text_x, value_x);
 
-    snprintf(buffer, sizeof(buffer), "(%d)", custom_stats->stats.dir_count);
+    rb->snprintf(buffer, sizeof(buffer), "(%d)", custom_stats->stats.dir_count);
     draw_stat_line("Directories", buffer, &text_y, line_height, text_x, value_x);
 
-    snprintf(buffer, sizeof(buffer), "(%d)", custom_stats->stats.file_count);
+    rb->snprintf(buffer, sizeof(buffer), "(%d)", custom_stats->stats.file_count);
     draw_stat_line("Files", buffer, &text_y, line_height, text_x, value_x);
 
-    snprintf(buffer, sizeof(buffer), "%.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0));
+    rb->snprintf(buffer, sizeof(buffer), "%.2f MB", custom_stats->stats.total_space_used / (1024.0 * 1024.0));
     draw_stat_line("Total Space Used", buffer, &text_y, line_height, text_x, value_x);
 
     draw_separator_lines(rect_x, rect_y + line_height + 10, rect_width, line_height, 8);
